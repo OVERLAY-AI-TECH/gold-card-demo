@@ -1,67 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR Jewelry Try-On</title>
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
     <style>
-        /* Styling to cover the entire viewport */
         body, html {
             margin: 0;
             padding: 0;
             overflow: hidden;
+            background-color: transparent;
             height: 100%;
             width: 100%;
-            font-family: Arial, sans-serif;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #000;
         }
-        #message {
+
+        #try-on-button {
             position: absolute;
-            top: 10px;
+            bottom: 10%;
             left: 50%;
             transform: translateX(-50%);
-            color: #FFF;
-            z-index: 10;
-            font-size: 1.2em;
-            text-align: center;
+            padding: 12px 24px;
+            font-size: 18px;
+            color: white;
+            background-color: rgba(51, 51, 51, 0.7); /* Semi-transparent background */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: none;
+        }
+
+        a-scene {
+            height: 100vh; /* Make sure the AR scene covers the full viewport */
         }
     </style>
 </head>
 <body>
-    <!-- Message to guide users -->
-    <div id="message">Point your camera at the AR marker to try on the jewelry.</div>
 
-    <!-- A-Frame Scene for AR -->
-    <a-scene
-        mindar-image="imageTargetSrc: ./targets.mind" <!-- Link to your targets.mind file -->
-        embedded
-        color-space="sRGB"
-        renderer="colorManagement: true, physicallyCorrectLights"
-        vr-mode-ui="enabled: false"
-        device-orientation-permission-ui="enabled: false"
-        gesture-detector>
-        
+    <!-- AR Scene -->
+    <a-scene mindar-image="imageTargetSrc: ./targets.mind" color-space="sRGB" embedded style="background: transparent; width: 100vw; height: 100vh;">
         <a-assets>
-            <!-- Jewelry PNG overlay image with transparent background -->
-            <img id="necklace" src="path-to-your-necklace.png" crossorigin="anonymous" />
+            <img id="design1" src="design1.png" />
         </a-assets>
+        
+        <a-camera></a-camera>
 
-        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-
-        <!-- Target for triggering AR -->
-        <a-entity id="jewelry-target" mindar-image-target="targetIndex: 0">
-            <!-- Jewelry overlay positioned relative to the target -->
-            <a-image src="#necklace" position="0 0 0" width="1" height="1.2"></a-image>
-        </a-entity>
+        <!-- Marker entity (without the image initially) -->
+        <a-entity id="marker" mindar-image-target="targetIndex: 0"></a-entity>
     </a-scene>
 
+    <!-- Button to trigger try-on functionality -->
+    <button id="try-on-button" onclick="openCamera()">Try Our Jewellery</button>
+
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            console.log("Virtual try-on demo loaded. Ready to scan marker.");
+        const tryOnButton = document.getElementById("try-on-button");
+
+        // Show the button when the marker is detected
+        document.querySelector("#marker").addEventListener("targetFound", () => {
+            console.log("Marker found!");
+            tryOnButton.style.display = "block";
         });
+
+        document.querySelector("#marker").addEventListener("targetLost", () => {
+            console.log("Marker lost!");
+            tryOnButton.style.display = "none";
+        });
+
+        // Open front camera and overlay jewelry image only after button click
+        function openCamera() {
+            console.log("Opening front camera...");
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
+            .then(stream => {
+                console.log("Camera accessed successfully");
+
+                // Remove AR scene and show camera feed
+                document.querySelector("a-scene").remove();
+                document.body.innerHTML += `<video autoplay style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; object-fit: cover;" id="cameraFeed"></video>`;
+                
+                const video = document.getElementById("cameraFeed");
+                video.srcObject = stream;
+
+                // Overlay jewelry design image
+                const jewelryOverlay = document.createElement("img");
+                jewelryOverlay.src = "design1.png";
+                jewelryOverlay.style.position = "fixed";
+                jewelryOverlay.style.width = "200px";
+                jewelryOverlay.style.top = "30%";
+                jewelryOverlay.style.left = "50%";
+                jewelryOverlay.style.transform = "translateX(-50%)";
+                document.body.appendChild(jewelryOverlay);
+            })
+            .catch(error => {
+                console.error("Camera access failed:", error);
+                alert("Unable to access the camera.");
+            });
+        }
     </script>
 </body>
 </html>
