@@ -2,232 +2,65 @@
 <html lang="en">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
     <style>
-        /* Container for dropdown menus */
-        #catalogueContainer {
+        /* Styling to cover the entire viewport */
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100%;
+            width: 100%;
+            font-family: Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #000;
+        }
+        #message {
             position: absolute;
-            bottom: 20px; /* Moved to the bottom */
+            top: 10px;
             left: 50%;
             transform: translateX(-50%);
-            z-index: 999;
-            display: none; /* Hidden by default */
-            justify-content: space-between;
-            align-items: center;
-            gap: 20px;
-            background-color: rgba(0, 0, 0, 0.5);
-            padding: 10px;
-            border-radius: 10px;
-            font-family: Arial, sans-serif;
-        }
-
-        #catalogueContainer select {
-            padding: 10px;
-            border-radius: 5px;
-            font-size: 14px;
-            cursor: pointer;
-            outline: none;
-            background-color: #FFF;
-            border: none;
-            color: black; /* Default color */
-        }
-
-        #catalogueContainer select.selected {
-            color: green; /* Change color when selected */
-        }
-
-        #catalogueContainer h3 {
             color: #FFF;
-            margin: 0 10px 0 0;
-            font-size: 16px;
-        }
-
-        #buyNowContainer, #playPauseButtonContainer {
-            position: absolute;
-            bottom: 20px;
-            z-index: 999;
+            z-index: 10;
+            font-size: 1.2em;
             text-align: center;
-        }
-
-        #buyNowContainer {
-            left: 20px;
-            display: none; /* Hidden by default */
-        }
-
-        #playPauseButtonContainer {
-            right: 20px;
-            display: none; /* Hidden by default */
-        }
-
-        #buyNowButton, #playPauseButton {
-            padding: 10px 20px;
-            border-radius: 5px;
-            background-color: #FFD700;
-            color: #000;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            outline: none;
-            border: none;
-        }
-
-        .a-enter-vr-button {
-            display: none !important;
         }
     </style>
 </head>
 <body>
-    <!-- Catalogue Selection UI -->
-    <div id="catalogueContainer">
-        <!-- General Jewelry Selection -->
-        <div>
-            <h3>Jewellery Type:</h3>
-            <select id="jewelrySelect">
-                <option value="">-- Select --</option>
-                <option value="ring">Ring</option>
-                <option value="pendant">Pendant</option>
-                <option value="bangle">Bangle</option>
-                <option value="earring">Earrings</option>
-                <option value="bracelet">Bracelet</option>
-                <option value="custom">Custom Design</option>
-            </select>
-        </div>
-    </div>
+    <!-- Message to guide users -->
+    <div id="message">Point your camera at the AR marker to try on the jewelry.</div>
 
-    <!-- Buy Now Button (hidden initially) -->
-    <div id="buyNowContainer">
-        <button id="buyNowButton">Explore Catalogue</button>
-    </div>
-
-    <!-- Play/Pause Button (hidden initially) -->
-    <div id="playPauseButtonContainer">
-        <button id="playPauseButton">Play with Audio</button>
-    </div>
-
-    <!-- AR Scene -->
+    <!-- A-Frame Scene for AR -->
     <a-scene
-        mindar-image="imageTargetSrc: ./targets.mind"
+        mindar-image="imageTargetSrc: ./targets.mind" <!-- Link to your targets.mind file -->
+        embedded
         color-space="sRGB"
         renderer="colorManagement: true, physicallyCorrectLights"
         vr-mode-ui="enabled: false"
-        device-orientation-permission-ui="enabled: false">
-
+        device-orientation-permission-ui="enabled: false"
+        gesture-detector>
+        
         <a-assets>
-            <!-- Jewelry Videos -->
-            <video id="ringVideo" src="DIAMOND bracelet.mp4" playsinline loop></video>
-            <video id="pendantVideo" src="DIAMOND chain.mp4" playsinline loop></video>
-            <video id="bangleVideo" src="DIAMOND earing.mp4" playsinline loop></video>
-            <video id="earringsVideo" src="DIAMOND ring.mp4" playsinline loop></video>
-            <video id="braceletVideo" src="gold bracelet.mp4" playsinline loop></video>
-            <video id="customDesignVideo" src="gold chain.mp4" playsinline loop></video>
-
-            <!-- Logo Image -->
-            <img id="logoImage" src="4k.png" />
+            <!-- Jewelry PNG overlay image with transparent background -->
+            <img id="necklace" src="path-to-your-necklace.png" crossorigin="anonymous" />
         </a-assets>
 
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-        <!-- Single Target -->
-        <a-entity id="target1" mindar-image-target="targetIndex: 0">
-            <!-- Logo to appear just on top of the target -->
-            <a-image src="#logoImage" position="0 0.57 .1" width=".8" height=".8"></a-image>
-
-            <!-- Jewelry Video Display Entity (changes based on user selection) -->
-            <a-plane id="videoDisplay" position="0 0 0" height="0.59" width="1"></a-plane>
+        <!-- Target for triggering AR -->
+        <a-entity id="jewelry-target" mindar-image-target="targetIndex: 0">
+            <!-- Jewelry overlay positioned relative to the target -->
+            <a-image src="#necklace" position="0 0 0" width="1" height="1.2"></a-image>
         </a-entity>
     </a-scene>
 
     <script>
-        const videoDisplay = document.querySelector('#videoDisplay');
-        const buyNowContainer = document.querySelector('#buyNowContainer');
-        const buyNowButton = document.querySelector('#buyNowButton');
-        const playPauseButton = document.querySelector('#playPauseButton');
-        const playPauseButtonContainer = document.querySelector('#playPauseButtonContainer');
-
-        let currentVideo = null;
-        let isPlaying = false;
-        let targetVisible = false;
-
-        const jewelrySelect = document.querySelector('#jewelrySelect');
-
-        const changeJewelryVideo = (videoElement, productLink) => {
-            if (currentVideo) {
-                currentVideo.pause();
-            }
-            currentVideo = videoElement;
-            videoDisplay.setAttribute('material', 'src', `#${videoElement.id}`);
-
-            buyNowContainer.style.display = 'block';
-            buyNowButton.onclick = () => {
-                window.open(productLink, '_blank');
-            };
-
-            playPauseButtonContainer.style.display = 'block';
-            playPauseButton.textContent = 'Play with Audio';
-        };
-
-        jewelrySelect.addEventListener('change', (event) => {
-            switch (event.target.value) {
-                case 'ring':
-                    changeJewelryVideo(document.querySelector('#ringVideo'), 'https://www.example.com/rings');
-                    break;
-                case 'pendant':
-                    changeJewelryVideo(document.querySelector('#pendantVideo'), 'https://www.example.com/pendants');
-                    break;
-                case 'bangle':
-                    changeJewelryVideo(document.querySelector('#bangleVideo'), 'https://www.example.com/bangles');
-                    break;
-                case 'earring':
-                    changeJewelryVideo(document.querySelector('#earringsVideo'), 'https://www.example.com/earrings');
-                    break;
-                case 'bracelet':
-                    changeJewelryVideo(document.querySelector('#braceletVideo'), 'https://www.example.com/bracelets');
-                    break;
-                case 'custom':
-                    changeJewelryVideo(document.querySelector('#customDesignVideo'), 'https://www.example.com/custom');
-                    break;
-                default:
-                    break;
-            }
-        });
-
-        playPauseButton.addEventListener('click', () => {
-            if (currentVideo && targetVisible) {
-                if (isPlaying) {
-                    currentVideo.pause();
-                    playPauseButton.textContent = 'Play with Audio';
-                } else {
-                    currentVideo.play();
-                    playPauseButton.textContent = 'Pause';
-                }
-                isPlaying = !isPlaying;
-            }
-        });
-
-        const target1 = document.querySelector('#target1');
-        target1.addEventListener('targetFound', () => {
-            targetVisible = true;
-            document.querySelector('#catalogueContainer').style.display = 'flex';
-            buyNowContainer.style.display = 'block'; 
-            playPauseButtonContainer.style.display = 'block';
-
-            if (!isPlaying) {
-                playPauseButton.textContent = 'Play with Audio';
-            }
-        });
-
-        target1.addEventListener('targetLost', () => {
-            targetVisible = false;
-            document.querySelector('#catalogueContainer').style.display = 'none';
-            buyNowContainer.style.display = 'none';
-            playPauseButtonContainer.style.display = 'none';
-
-            if (currentVideo) {
-                currentVideo.pause();
-            }
-            isPlaying = false;
-            playPauseButton.textContent = 'Play with Audio';
+        document.addEventListener("DOMContentLoaded", () => {
+            console.log("Virtual try-on demo loaded. Ready to scan marker.");
         });
     </script>
 </body>
