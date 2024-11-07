@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Virtual Jewelry Try-On</title>
+    <title>AR Jewelry Try-On</title>
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
     <style>
@@ -29,6 +29,7 @@
             border-radius: 5px;
             cursor: pointer;
             display: none;
+            transition: opacity 0.3s ease;
         }
 
         .arrow-button {
@@ -42,6 +43,8 @@
             cursor: pointer;
             z-index: 100;
             transform: translateY(-50%);
+            display: none;
+            transition: opacity 0.3s ease;
         }
 
         #left-arrow {
@@ -73,7 +76,7 @@
     </a-scene>
 
     <!-- Button to trigger try-on functionality -->
-    <button id="try-on-button" onclick="openCamera()">Try Our Jewellery</button>
+    <button id="try-on-button" onclick="openCamera()">Try Our Jewelry</button>
 
     <!-- Navigation Arrows -->
     <button class="arrow-button" id="left-arrow" onclick="previousImage()">&#9664;</button>
@@ -91,11 +94,13 @@
         document.querySelector("#marker").addEventListener("targetFound", () => {
             console.log("Marker found!");
             tryOnButton.style.display = "block";
+            tryOnButton.style.opacity = 1;
         });
 
         document.querySelector("#marker").addEventListener("targetLost", () => {
             console.log("Marker lost!");
-            tryOnButton.style.display = "none";
+            tryOnButton.style.opacity = 0;
+            setTimeout(() => tryOnButton.style.display = "none", 300);
         });
 
         // Function to open camera and show jewelry overlay
@@ -112,20 +117,27 @@
                 const video = document.getElementById("cameraFeed");
                 video.srcObject = stream;
 
-                // Create overlay for jewelry and place near neck area
+                // Create overlay for jewelry
                 jewelryOverlay = document.createElement("img");
                 updateImage();
                 jewelryOverlay.style.position = "fixed";
-                jewelryOverlay.style.width = "250px"; // Adjust width to better fit neck size
-                jewelryOverlay.style.top = "45%"; // Adjust position to align with neck
+                jewelryOverlay.style.width = "25vw"; // Responsive width for different screen sizes
+                jewelryOverlay.style.height = "auto"; // Maintain aspect ratio
+                jewelryOverlay.style.top = "30%";
                 jewelryOverlay.style.left = "50%";
                 jewelryOverlay.style.transform = "translateX(-50%)";
-                jewelryOverlay.style.opacity = "0.9"; // Slight transparency for realistic overlay
+                jewelryOverlay.style.transition = "opacity 0.3s ease"; // Smooth transition for switching images
                 document.body.appendChild(jewelryOverlay);
 
-                // Show navigation arrows
-                document.getElementById("left-arrow").style.display = "block";
-                document.getElementById("right-arrow").style.display = "block";
+                // Show navigation arrows with transition
+                const leftArrow = document.getElementById("left-arrow");
+                const rightArrow = document.getElementById("right-arrow");
+                leftArrow.style.display = "block";
+                rightArrow.style.display = "block";
+                setTimeout(() => {
+                    leftArrow.style.opacity = 1;
+                    rightArrow.style.opacity = 1;
+                }, 100);
             })
             .catch(error => {
                 console.error("Camera access failed:", error);
@@ -133,9 +145,13 @@
             });
         }
 
-        // Function to update the current image
+        // Function to update the current image with smooth transition
         function updateImage() {
-            jewelryOverlay.src = images[currentIndex];
+            jewelryOverlay.style.opacity = 0; // fade out current image
+            setTimeout(() => {
+                jewelryOverlay.src = images[currentIndex];
+                jewelryOverlay.style.opacity = 1; // fade in new image
+            }, 200); // small delay for fade-out effect
         }
 
         // Show the previous image
