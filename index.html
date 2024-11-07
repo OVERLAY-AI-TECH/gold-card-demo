@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AR Jewelry Try-On</title>
+    <title>Virtual Jewelry Try-On</title>
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
     <style>
@@ -24,15 +24,32 @@
             padding: 12px 24px;
             font-size: 18px;
             color: white;
-            background-color: rgba(51, 51, 51, 0.7); /* Semi-transparent background */
+            background-color: rgba(51, 51, 51, 0.7);
             border: none;
             border-radius: 5px;
             cursor: pointer;
             display: none;
         }
 
-        a-scene {
-            height: 100vh; /* Make sure the AR scene covers the full viewport */
+        .arrow-button {
+            position: fixed;
+            top: 50%;
+            font-size: 24px;
+            color: white;
+            background-color: rgba(0, 0, 0, 0.5);
+            border: none;
+            padding: 12px;
+            cursor: pointer;
+            z-index: 100;
+            transform: translateY(-50%);
+        }
+
+        #left-arrow {
+            left: 5%;
+        }
+
+        #right-arrow {
+            right: 5%;
         }
     </style>
 </head>
@@ -41,7 +58,12 @@
     <!-- AR Scene -->
     <a-scene mindar-image="imageTargetSrc: ./targets.mind" color-space="sRGB" embedded style="background: transparent; width: 100vw; height: 100vh;">
         <a-assets>
+            <!-- Preloading images for AR -->
             <img id="design1" src="design1.png" />
+            <img id="design2" src="design2.png" />
+            <img id="design3" src="design3.png" />
+            <img id="design4" src="design4.png" />
+            <img id="design5" src="design5.png" />
         </a-assets>
         
         <a-camera></a-camera>
@@ -53,8 +75,17 @@
     <!-- Button to trigger try-on functionality -->
     <button id="try-on-button" onclick="openCamera()">Try Our Jewellery</button>
 
+    <!-- Navigation Arrows -->
+    <button class="arrow-button" id="left-arrow" onclick="previousImage()">&#9664;</button>
+    <button class="arrow-button" id="right-arrow" onclick="nextImage()">&#9654;</button>
+
     <script>
         const tryOnButton = document.getElementById("try-on-button");
+
+        // Images array and current index
+        const images = ["design1.png", "design2.png", "design3.png", "design4.png", "design5.png"];
+        let currentIndex = 0;
+        let jewelryOverlay;
 
         // Show the button when the marker is detected
         document.querySelector("#marker").addEventListener("targetFound", () => {
@@ -67,7 +98,7 @@
             tryOnButton.style.display = "none";
         });
 
-        // Open front camera and overlay jewelry image only after button click
+        // Function to open camera and show jewelry overlay
         function openCamera() {
             console.log("Opening front camera...");
             navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
@@ -81,20 +112,42 @@
                 const video = document.getElementById("cameraFeed");
                 video.srcObject = stream;
 
-                // Overlay jewelry design image
-                const jewelryOverlay = document.createElement("img");
-                jewelryOverlay.src = "design1.png";
+                // Create overlay for jewelry and place near neck area
+                jewelryOverlay = document.createElement("img");
+                updateImage();
                 jewelryOverlay.style.position = "fixed";
-                jewelryOverlay.style.width = "200px";
-                jewelryOverlay.style.top = "30%";
+                jewelryOverlay.style.width = "250px"; // Adjust width to better fit neck size
+                jewelryOverlay.style.top = "45%"; // Adjust position to align with neck
                 jewelryOverlay.style.left = "50%";
                 jewelryOverlay.style.transform = "translateX(-50%)";
+                jewelryOverlay.style.opacity = "0.9"; // Slight transparency for realistic overlay
                 document.body.appendChild(jewelryOverlay);
+
+                // Show navigation arrows
+                document.getElementById("left-arrow").style.display = "block";
+                document.getElementById("right-arrow").style.display = "block";
             })
             .catch(error => {
                 console.error("Camera access failed:", error);
                 alert("Unable to access the camera.");
             });
+        }
+
+        // Function to update the current image
+        function updateImage() {
+            jewelryOverlay.src = images[currentIndex];
+        }
+
+        // Show the previous image
+        function previousImage() {
+            currentIndex = (currentIndex - 1 + images.length) % images.length;
+            updateImage();
+        }
+
+        // Show the next image
+        function nextImage() {
+            currentIndex = (currentIndex + 1) % images.length;
+            updateImage();
         }
     </script>
 </body>
