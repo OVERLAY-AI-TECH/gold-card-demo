@@ -8,11 +8,11 @@
         /* Container for dropdown menus */
         #catalogueContainer {
             position: absolute;
-            bottom: 120px; /* Adjusted to make space for the new button */
-            left: 50%; /* Center horizontally */
+            bottom: 130px; /* Position just above the other buttons */
+            left: 50%;
             transform: translateX(-50%);
             z-index: 999;
-            display: flex; /* Display the container */
+            display: flex;
             justify-content: space-between;
             align-items: center;
             gap: 20px;
@@ -30,11 +30,11 @@
             outline: none;
             background-color: #FFF;
             border: none;
-            color: black; /* Default color */
+            color: black;
         }
 
         #catalogueContainer select.selected {
-            color: green; /* Change color when selected */
+            color: green;
         }
 
         #catalogueContainer h3 {
@@ -53,16 +53,16 @@
 
         #buyNowContainer {
             left: 20px;
-            display: none; /* Hidden by default */
+            display: none;
         }
 
         #playPauseButtonContainer {
             right: 20px;
-            display: none; /* Hidden by default */
+            display: none;
         }
 
         #tryJewelryContainer {
-            bottom: 70px; /* Position above the other two buttons */
+            bottom: 80px;
             left: 50%;
             transform: translateX(-50%);
         }
@@ -112,11 +112,6 @@
         </div>
     </div>
 
-    <!-- Try Our Jewelry Button -->
-    <div id="tryJewelryContainer">
-        <button id="tryJewelryButton">Try Our Jewellery</button>
-    </div>
-
     <!-- Buy Now Button (hidden initially) -->
     <div id="buyNowContainer">
         <button id="buyNowButton">Explore Catalogue</button>
@@ -125,6 +120,11 @@
     <!-- Play/Pause Button (hidden initially) -->
     <div id="playPauseButtonContainer">
         <button id="playPauseButton">Play with Audio</button>
+    </div>
+
+    <!-- Try Our Jewellery Button -->
+    <div id="tryJewelryContainer">
+        <button id="tryJewelryButton">Try Our Jewellery</button>
     </div>
 
     <!-- AR Scene -->
@@ -181,22 +181,18 @@
         const goldJewelrySelect = document.querySelector('#goldJewelrySelect');
         const diamondJewelrySelect = document.querySelector('#diamondJewelrySelect');
 
-        // Event listeners for each dropdown and Try Our Jewelry button
-        tryJewelryButton.addEventListener('click', () => {
-            alert('Try our jewelry experience!');
-            // Add any further functionality here for the button action
-        });
-
+        // Function to reset other dropdowns to default when one is selected
         const resetOtherDropdowns = (currentSelect) => {
             const allSelects = [goldJewelrySelect, diamondJewelrySelect];
             allSelects.forEach(select => {
                 if (select !== currentSelect) {
                     select.value = "";
-                    select.classList.remove('selected'); // Reset class of unselected dropdowns
+                    select.classList.remove('selected');
                 }
             });
         };
 
+        // Function to update video and play/pause controls
         const changeJewelryVideo = (videoElement, productLink) => {
             if (currentVideo) {
                 currentVideo.pause();
@@ -204,21 +200,25 @@
             currentVideo = videoElement;
             videoDisplay.setAttribute('material', 'src', `#${videoElement.id}`);
 
+            // Show the Buy Now button with the respective product link
             buyNowContainer.style.display = 'block';
             buyNowButton.onclick = () => {
                 window.open(productLink, '_blank');
             };
 
+            // Show Play/Pause button
             playPauseButtonContainer.style.display = 'block';
             playPauseButton.textContent = 'Play with Audio';
         };
 
+        // Change the color of the dropdown text to green when selected
         const changeSelectedDropdownColor = (selectElement) => {
             if (selectElement.value !== "") {
                 selectElement.classList.add('selected');
             }
         };
 
+        // Event listeners for each dropdown
         goldJewelrySelect.addEventListener('change', (event) => {
             resetOtherDropdowns(goldJewelrySelect);
             changeSelectedDropdownColor(goldJewelrySelect);
@@ -263,32 +263,25 @@
             }
         });
 
+        // Play/Pause button functionality
         playPauseButton.addEventListener('click', () => {
-            if (isPlaying) {
-                currentVideo.pause();
-                playPauseButton.textContent = 'Play with Audio';
-            } else {
-                currentVideo.play();
-                playPauseButton.textContent = 'Pause Audio';
-            }
-            isPlaying = !isPlaying;
-        });
-
-        const target = document.querySelector('#target1');
-        target.addEventListener('targetFound', () => {
-            targetVisible = true;
-            if (currentVideo && !isPlaying) {
-                currentVideo.play();
-                isPlaying = true;
-            }
-        });
-
-        target.addEventListener('targetLost', () => {
-            targetVisible = false;
             if (currentVideo) {
-                currentVideo.pause();
-                isPlaying = false;
+                if (isPlaying) {
+                    currentVideo.muted = true;
+                    currentVideo.pause();
+                    playPauseButton.textContent = 'Play with Audio';
+                } else {
+                    currentVideo.muted = false;
+                    currentVideo.play();
+                    playPauseButton.textContent = 'Pause';
+                }
+                isPlaying = !isPlaying;
             }
+        });
+
+        // Try Our Jewellery button functionality
+        tryJewelryButton.addEventListener('click', () => {
+            window.open('https://overlay-ai-tech.github.io/gold-chain-demo/', '_blank');
         });
     </script>
 </body>
