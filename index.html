@@ -8,7 +8,7 @@
         /* Container for dropdown menus */
         #catalogueContainer {
             position: absolute;
-            bottom: 80px; /* Position just above the play/pause button */
+            bottom: 120px; /* Adjusted to make space for the new button */
             left: 50%; /* Center horizontally */
             transform: translateX(-50%);
             z-index: 999;
@@ -44,7 +44,7 @@
             text-align: center;
         }
 
-        #buyNowContainer, #playPauseButtonContainer {
+        #buyNowContainer, #playPauseButtonContainer, #tryJewelryContainer {
             position: absolute;
             bottom: 20px;
             z-index: 999;
@@ -61,7 +61,13 @@
             display: none; /* Hidden by default */
         }
 
-        #buyNowButton, #playPauseButton {
+        #tryJewelryContainer {
+            bottom: 70px; /* Position above the other two buttons */
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        #buyNowButton, #playPauseButton, #tryJewelryButton {
             padding: 10px 20px;
             border-radius: 5px;
             background-color: #FFD700;
@@ -104,6 +110,11 @@
                 <option value="bracelet">Diamond Bracelet</option>
             </select>
         </div>
+    </div>
+
+    <!-- Try Our Jewelry Button -->
+    <div id="tryJewelryContainer">
+        <button id="tryJewelryButton">Try Our Jewellery</button>
     </div>
 
     <!-- Buy Now Button (hidden initially) -->
@@ -159,6 +170,7 @@
         const buyNowButton = document.querySelector('#buyNowButton');
         const playPauseButton = document.querySelector('#playPauseButton');
         const playPauseButtonContainer = document.querySelector('#playPauseButtonContainer');
+        const tryJewelryButton = document.querySelector('#tryJewelryButton');
 
         // Jewelry videos
         let currentVideo = null;
@@ -169,7 +181,12 @@
         const goldJewelrySelect = document.querySelector('#goldJewelrySelect');
         const diamondJewelrySelect = document.querySelector('#diamondJewelrySelect');
 
-        // Function to reset other dropdowns to default when one is selected
+        // Event listeners for each dropdown and Try Our Jewelry button
+        tryJewelryButton.addEventListener('click', () => {
+            alert('Try our jewelry experience!');
+            // Add any further functionality here for the button action
+        });
+
         const resetOtherDropdowns = (currentSelect) => {
             const allSelects = [goldJewelrySelect, diamondJewelrySelect];
             allSelects.forEach(select => {
@@ -180,7 +197,6 @@
             });
         };
 
-        // Function to update video and play/pause controls
         const changeJewelryVideo = (videoElement, productLink) => {
             if (currentVideo) {
                 currentVideo.pause();
@@ -188,28 +204,24 @@
             currentVideo = videoElement;
             videoDisplay.setAttribute('material', 'src', `#${videoElement.id}`);
 
-            // Show the Buy Now button with the respective product link
             buyNowContainer.style.display = 'block';
             buyNowButton.onclick = () => {
                 window.open(productLink, '_blank');
             };
 
-            // Show Play/Pause button
             playPauseButtonContainer.style.display = 'block';
-            playPauseButton.textContent = 'Play with Audio'; // Updated text
+            playPauseButton.textContent = 'Play with Audio';
         };
 
-        // Change the color of the dropdown text to green when selected
         const changeSelectedDropdownColor = (selectElement) => {
             if (selectElement.value !== "") {
-                selectElement.classList.add('selected'); // Add class to change text color
+                selectElement.classList.add('selected');
             }
         };
 
-        // Event listeners for each dropdown
         goldJewelrySelect.addEventListener('change', (event) => {
-            resetOtherDropdowns(goldJewelrySelect);  // Reset other dropdowns
-            changeSelectedDropdownColor(goldJewelrySelect); // Change text color
+            resetOtherDropdowns(goldJewelrySelect);
+            changeSelectedDropdownColor(goldJewelrySelect);
 
             switch (event.target.value) {
                 case 'ring':
@@ -230,8 +242,8 @@
         });
 
         diamondJewelrySelect.addEventListener('change', (event) => {
-            resetOtherDropdowns(diamondJewelrySelect);  // Reset other dropdowns
-            changeSelectedDropdownColor(diamondJewelrySelect); // Change text color
+            resetOtherDropdowns(diamondJewelrySelect);
+            changeSelectedDropdownColor(diamondJewelrySelect);
 
             switch (event.target.value) {
                 case 'ring':
@@ -251,7 +263,6 @@
             }
         });
 
-        // Event listener for the Play/Pause button
         playPauseButton.addEventListener('click', () => {
             if (isPlaying) {
                 currentVideo.pause();
@@ -263,7 +274,6 @@
             isPlaying = !isPlaying;
         });
 
-        // Visibility control for target appearance
         const target = document.querySelector('#target1');
         target.addEventListener('targetFound', () => {
             targetVisible = true;
