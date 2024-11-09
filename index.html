@@ -1,170 +1,285 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AR Jewelry Try-On</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
     <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            background-color: transparent;
-            height: 100%;
-            width: 100%;
-        }
-
-        #try-on-button {
+        /* Container for dropdown menus */
+        #catalogueContainer {
             position: absolute;
-            bottom: 10%;
-            left: 50%;
+            bottom: 20px; /* Position near the bottom */
+            left: 50%; /* Center horizontally */
             transform: translateX(-50%);
-            padding: 12px 24px;
-            font-size: 18px;
-            color: white;
-            background-color: rgba(51, 51, 51, 0.7);
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            display: none;
-            transition: opacity 0.3s ease;
-        }
-
-        .arrow-button {
-            position: fixed;
-            top: 50%;
-            font-size: 24px;
-            color: white;
+            z-index: 999;
+            display: flex; /* Display the container */
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
             background-color: rgba(0, 0, 0, 0.5);
-            border: none;
-            padding: 12px;
+            padding: 10px;
+            border-radius: 10px;
+            font-family: Arial, sans-serif;
+        }
+
+        #catalogueContainer select {
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
             cursor: pointer;
-            z-index: 100;
-            transform: translateY(-50%);
-            display: none;
-            transition: opacity 0.3s ease;
+            outline: none;
+            background-color: #FFF;
+            border: none;
+            color: black; /* Default color */
         }
 
-        #left-arrow {
-            left: 5%;
+        #catalogueContainer select.selected {
+            color: green; /* Change color when selected */
         }
 
-        #right-arrow {
-            right: 5%;
+        #catalogueContainer h3 {
+            color: #FFF;
+            margin: 0 10px 0 0;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        #buyNowContainer, #playPauseButtonContainer {
+            position: absolute;
+            bottom: 20px;
+            z-index: 999;
+            text-align: center;
+        }
+
+        #buyNowContainer {
+            left: 20px;
+            display: none; /* Hidden by default */
+        }
+
+        #playPauseButtonContainer {
+            right: 20px;
+            display: none; /* Hidden by default */
+        }
+
+        #buyNowButton, #playPauseButton {
+            padding: 10px 20px;
+            border-radius: 5px;
+            background-color: #FFD700;
+            color: #000;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            outline: none;
+            border: none;
+        }
+
+        .a-enter-vr-button {
+            display: none !important;
         }
     </style>
 </head>
 <body>
+    <!-- Catalogue Selection UI -->
+    <div id="catalogueContainer">
+        <!-- Gold Jewelry -->
+        <div>
+            <h3>Gold <br> Jewellery :</h3>
+            <select id="goldJewelrySelect">
+                <option value="">-- Select --</option>
+                <option value="ring">Gold Ring</option>
+                <option value="necklace">Gold Necklace</option>
+                <option value="earrings">Gold Earrings</option>
+                <option value="bracelet">Gold Bracelet</option>
+            </select>
+        </div>
+        
+        <!-- Diamond Jewelry -->
+        <div>
+            <h3>Diamond<br>Jewellery:</h3>
+            <select id="diamondJewelrySelect">
+                <option value="">--Select--</option>
+                <option value="ring">Diamond Ring</option>
+                <option value="necklace">Diamond Necklace</option>
+                <option value="earrings">Diamond Earrings</option>
+                <option value="bracelet">Diamond Bracelet</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Buy Now Button (hidden initially) -->
+    <div id="buyNowContainer">
+        <button id="buyNowButton">Explore Catalogue</button>
+    </div>
+
+    <!-- Play/Pause Button (hidden initially) -->
+    <div id="playPauseButtonContainer">
+        <button id="playPauseButton">Play with Audio</button>
+    </div>
 
     <!-- AR Scene -->
-    <a-scene mindar-image="imageTargetSrc: ./targets.mind" color-space="sRGB" embedded style="background: transparent; width: 100vw; height: 100vh;">
-        <a-assets>
-            <!-- Preloading images for AR -->
-            <img id="design1" src="design1.png" />
-            <img id="design2" src="design2.png" />
-            <img id="design3" src="design3.png" />
-            <img id="design4" src="design4.png" />
-            <img id="design5" src="design5.png" />
-        </a-assets>
-        
-        <a-camera></a-camera>
+    <a-scene
+        mindar-image="imageTargetSrc: ./targets.mind"
+        color-space="sRGB"
+        renderer="colorManagement: true, physicallyCorrectLights"
+        vr-mode-ui="enabled: false"
+        device-orientation-permission-ui="enabled: false">
 
-        <!-- Marker entity (without the image initially) -->
-        <a-entity id="marker" mindar-image-target="targetIndex: 0"></a-entity>
+        <a-assets>
+            <!-- Gold Jewelry Videos -->
+            <video id="goldRingVideo" src="gold rings.mp4" playsinline loop></video>
+            <video id="goldNecklaceVideo" src="gold chain.mp4" playsinline loop></video>
+            <video id="goldEarringsVideo" src="gold earring.mp4" playsinline loop></video>
+            <video id="goldBraceletVideo" src="gold bracelet.mp4" playsinline loop></video>
+
+            <!-- Diamond Jewelry Videos -->
+            <video id="diamondRingVideo" src="DIAMOND ring.mp4" playsinline loop></video>
+            <video id="diamondNecklaceVideo" src="DIAMOND chain.mp4" playsinline loop></video>
+            <video id="diamondEarringsVideo" src="DIAMOND earing.mp4" playsinline loop></video>
+            <video id="diamondBraceletVideo" src="DIAMOND bracelet.mp4" playsinline loop></video>
+
+            <!-- Logo Image -->
+            <img id="logoImage" src="4k.png" />
+        </a-assets>
+
+        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+        <!-- Single Target -->
+        <a-entity id="target1" mindar-image-target="targetIndex: 0">
+            <!-- Logo to appear just on top of the target -->
+            <a-image src="#logoImage" position="0 0.57 .1" width=".8" height=".8"></a-image>
+
+            <!-- Jewelry Video Display Entity (changes based on user selection) -->
+            <a-plane id="videoDisplay" position="0 0 0" height="0.59" width="1"></a-plane>
+        </a-entity>
     </a-scene>
 
-    <!-- Button to trigger try-on functionality -->
-    <button id="try-on-button" onclick="openCamera()">Try Our Jewelry</button>
-
-    <!-- Navigation Arrows -->
-    <button class="arrow-button" id="left-arrow" onclick="previousImage()">&#9664;</button>
-    <button class="arrow-button" id="right-arrow" onclick="nextImage()">&#9654;</button>
-
     <script>
-        const tryOnButton = document.getElementById("try-on-button");
+        const videoDisplay = document.querySelector('#videoDisplay');
+        const buyNowContainer = document.querySelector('#buyNowContainer');
+        const buyNowButton = document.querySelector('#buyNowButton');
+        const playPauseButton = document.querySelector('#playPauseButton');
+        const playPauseButtonContainer = document.querySelector('#playPauseButtonContainer');
 
-        // Images array and current index
-        const images = ["design1.png", "design2.png", "design3.png", "design4.png", "design5.png"];
-        let currentIndex = 0;
-        let jewelryOverlay;
+        // Jewelry videos
+        let currentVideo = null;
+        let isPlaying = false;
+        let targetVisible = false;
 
-        // Show the button when the marker is detected
-        document.querySelector("#marker").addEventListener("targetFound", () => {
-            console.log("Marker found!");
-            tryOnButton.style.display = "block";
-            tryOnButton.style.opacity = 1;
-        });
+        // Dropdown elements
+        const goldJewelrySelect = document.querySelector('#goldJewelrySelect');
+        const diamondJewelrySelect = document.querySelector('#diamondJewelrySelect');
 
-        document.querySelector("#marker").addEventListener("targetLost", () => {
-            console.log("Marker lost!");
-            tryOnButton.style.opacity = 0;
-            setTimeout(() => tryOnButton.style.display = "none", 300);
-        });
-
-        // Function to open camera and show jewelry overlay
-        function openCamera() {
-            console.log("Opening front camera...");
-            navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
-            .then(stream => {
-                console.log("Camera accessed successfully");
-
-                // Remove AR scene and show camera feed
-                document.querySelector("a-scene").remove();
-                document.body.innerHTML += `<video autoplay style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; object-fit: cover;" id="cameraFeed"></video>`;
-                
-                const video = document.getElementById("cameraFeed");
-                video.srcObject = stream;
-
-                // Create overlay for jewelry
-                jewelryOverlay = document.createElement("img");
-                updateImage();
-                jewelryOverlay.style.position = "fixed";
-                jewelryOverlay.style.width = "25vw"; // Responsive width for different screen sizes
-                jewelryOverlay.style.height = "auto"; // Maintain aspect ratio
-                jewelryOverlay.style.top = "30%";
-                jewelryOverlay.style.left = "50%";
-                jewelryOverlay.style.transform = "translateX(-50%)";
-                jewelryOverlay.style.transition = "opacity 0.3s ease"; // Smooth transition for switching images
-                document.body.appendChild(jewelryOverlay);
-
-                // Show navigation arrows with transition
-                const leftArrow = document.getElementById("left-arrow");
-                const rightArrow = document.getElementById("right-arrow");
-                leftArrow.style.display = "block";
-                rightArrow.style.display = "block";
-                setTimeout(() => {
-                    leftArrow.style.opacity = 1;
-                    rightArrow.style.opacity = 1;
-                }, 100);
-            })
-            .catch(error => {
-                console.error("Camera access failed:", error);
-                alert("Unable to access the camera.");
+        // Function to reset other dropdowns to default when one is selected
+        const resetOtherDropdowns = (currentSelect) => {
+            const allSelects = [goldJewelrySelect, diamondJewelrySelect];
+            allSelects.forEach(select => {
+                if (select !== currentSelect) {
+                    select.value = "";
+                    select.classList.remove('selected'); // Reset class of unselected dropdowns
+                }
             });
-        }
+        };
 
-        // Function to update the current image with smooth transition
-        function updateImage() {
-            jewelryOverlay.style.opacity = 0; // fade out current image
-            setTimeout(() => {
-                jewelryOverlay.src = images[currentIndex];
-                jewelryOverlay.style.opacity = 1; // fade in new image
-            }, 200); // small delay for fade-out effect
-        }
+        // Function to update video and play/pause controls
+        const changeJewelryVideo = (videoElement, productLink) => {
+            if (currentVideo) {
+                currentVideo.pause();
+            }
+            currentVideo = videoElement;
+            videoDisplay.setAttribute('material', 'src', `#${videoElement.id}`);
 
-        // Show the previous image
-        function previousImage() {
-            currentIndex = (currentIndex - 1 + images.length) % images.length;
-            updateImage();
-        }
+            // Show the Buy Now button with the respective product link
+            buyNowContainer.style.display = 'block';
+            buyNowButton.onclick = () => {
+                window.open(productLink, '_blank');
+            };
 
-        // Show the next image
-        function nextImage() {
-            currentIndex = (currentIndex + 1) % images.length;
-            updateImage();
-        }
+            // Show Play/Pause button
+            playPauseButtonContainer.style.display = 'block';
+            playPauseButton.textContent = 'Play with Audio'; // Updated text
+        };
+
+        // Change the color of the dropdown text to green when selected
+        const changeSelectedDropdownColor = (selectElement) => {
+            if (selectElement.value !== "") {
+                selectElement.classList.add('selected'); // Add class to change text color
+            }
+        };
+
+        // Event listeners for each dropdown
+        goldJewelrySelect.addEventListener('change', (event) => {
+            resetOtherDropdowns(goldJewelrySelect);  // Reset other dropdowns
+            changeSelectedDropdownColor(goldJewelrySelect); // Change text color
+
+            switch (event.target.value) {
+                case 'ring':
+                    changeJewelryVideo(document.querySelector('#goldRingVideo'), 'https://WWW.OVERLAY-AI.COM');
+                    break;
+                case 'necklace':
+                    changeJewelryVideo(document.querySelector('#goldNecklaceVideo'), 'https://WWW.OVERLAY-AI.COM');
+                    break;
+                case 'earrings':
+                    changeJewelryVideo(document.querySelector('#goldEarringsVideo'), 'https://WWW.OVERLAY-AI.COM');
+                    break;
+                case 'bracelet':
+                    changeJewelryVideo(document.querySelector('#goldBraceletVideo'), 'https://WWW.OVERLAY-AI.COM');
+                    break;
+                default:
+                    break;
+            }
+        });
+
+        diamondJewelrySelect.addEventListener('change', (event) => {
+            resetOtherDropdowns(diamondJewelrySelect);  // Reset other dropdowns
+            changeSelectedDropdownColor(diamondJewelrySelect); // Change text color
+
+            switch (event.target.value) {
+                case 'ring':
+                    changeJewelryVideo(document.querySelector('#diamondRingVideo'), 'https://WWW.OVERLAY-AI.COM');
+                    break;
+                case 'necklace':
+                    changeJewelryVideo(document.querySelector('#diamondNecklaceVideo'), 'https://WWW.OVERLAY-AI.COM');
+                    break;
+                case 'earrings':
+                    changeJewelryVideo(document.querySelector('#diamondEarringsVideo'), 'https://WWW.OVERLAY-AI.COM');
+                    break;
+                case 'bracelet':
+                    changeJewelryVideo(document.querySelector('#diamondBraceletVideo'), 'https://WWW.OVERLAY-AI.COM');
+                    break;
+                default:
+                    break;
+            }
+        });
+
+        // Event listener for the Play/Pause button
+        playPauseButton.addEventListener('click', () => {
+            if (isPlaying) {
+                currentVideo.pause();
+                playPauseButton.textContent = 'Play with Audio';
+            } else {
+                currentVideo.play();
+                playPauseButton.textContent = 'Pause Audio';
+            }
+            isPlaying = !isPlaying;
+        });
+
+        // Visibility control for target appearance
+        const target = document.querySelector('#target1');
+        target.addEventListener('targetFound', () => {
+            targetVisible = true;
+            if (currentVideo && !isPlaying) {
+                currentVideo.play();
+                isPlaying = true;
+            }
+        });
+
+        target.addEventListener('targetLost', () => {
+            targetVisible = false;
+            if (currentVideo) {
+                currentVideo.pause();
+                isPlaying = false;
+            }
+        });
     </script>
 </body>
 </html>
