@@ -5,16 +5,36 @@
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
     <style>
-        /* Container for dropdown menus */
+        /* Styling for the Try Our Jewellery Button */
+        #tryJewelryContainer {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 999;
+        }
+
+        #tryJewelryButton {
+            padding: 10px 20px;
+            border-radius: 5px;
+            background-color: #FFD700;
+            color: #000;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            outline: none;
+            border: none;
+        }
+
+        /* Styling for the Catalogue UI and other buttons */
         #catalogueContainer {
             position: absolute;
-            bottom: 130px; /* Position just above the other buttons */
+            bottom: 140px; /* Adjusted for spacing */
             left: 50%;
             transform: translateX(-50%);
             z-index: 999;
             display: flex;
             justify-content: space-between;
-            align-items: center;
             gap: 20px;
             background-color: rgba(0, 0, 0, 0.5);
             padding: 10px;
@@ -33,18 +53,7 @@
             color: black;
         }
 
-        #catalogueContainer select.selected {
-            color: green;
-        }
-
-        #catalogueContainer h3 {
-            color: #FFF;
-            margin: 0 10px 0 0;
-            font-size: 16px;
-            text-align: center;
-        }
-
-        #buyNowContainer, #playPauseButtonContainer, #tryJewelryContainer {
+        #buyNowContainer, #playPauseButtonContainer {
             position: absolute;
             bottom: 20px;
             z-index: 999;
@@ -61,13 +70,7 @@
             display: none;
         }
 
-        #tryJewelryContainer {
-            bottom: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        #buyNowButton, #playPauseButton, #tryJewelryButton {
+        #buyNowButton, #playPauseButton {
             padding: 10px 20px;
             border-radius: 5px;
             background-color: #FFD700;
@@ -85,6 +88,11 @@
     </style>
 </head>
 <body>
+    <!-- Try Our Jewellery Button -->
+    <div id="tryJewelryContainer">
+        <button id="tryJewelryButton" onclick="openJewelryDemo()">Try Our Jewellery</button>
+    </div>
+
     <!-- Catalogue Selection UI -->
     <div id="catalogueContainer">
         <!-- Gold Jewelry -->
@@ -122,11 +130,6 @@
         <button id="playPauseButton">Play with Audio</button>
     </div>
 
-    <!-- Try Our Jewellery Button -->
-    <div id="tryJewelryContainer">
-        <button id="tryJewelryButton">Try Our Jewellery</button>
-    </div>
-
     <!-- AR Scene -->
     <a-scene
         mindar-image="imageTargetSrc: ./targets.mind"
@@ -134,7 +137,6 @@
         renderer="colorManagement: true, physicallyCorrectLights"
         vr-mode-ui="enabled: false"
         device-orientation-permission-ui="enabled: false">
-
         <a-assets>
             <!-- Gold Jewelry Videos -->
             <video id="goldRingVideo" src="gold rings.mp4" playsinline loop></video>
@@ -165,12 +167,16 @@
     </a-scene>
 
     <script>
+        // Function to open the link immediately when the "Try Our Jewellery" button is clicked
+        function openJewelryDemo() {
+            window.open('https://overlay-ai-tech.github.io/gold-chain-demo/', '_blank');
+        }
+
         const videoDisplay = document.querySelector('#videoDisplay');
         const buyNowContainer = document.querySelector('#buyNowContainer');
         const buyNowButton = document.querySelector('#buyNowButton');
         const playPauseButton = document.querySelector('#playPauseButton');
         const playPauseButtonContainer = document.querySelector('#playPauseButtonContainer');
-        const tryJewelryButton = document.querySelector('#tryJewelryButton');
 
         // Jewelry videos
         let currentVideo = null;
@@ -187,7 +193,7 @@
             allSelects.forEach(select => {
                 if (select !== currentSelect) {
                     select.value = "";
-                    select.classList.remove('selected');
+                    select.classList.remove('selected'); // Reset class of unselected dropdowns
                 }
             });
         };
@@ -208,20 +214,12 @@
 
             // Show Play/Pause button
             playPauseButtonContainer.style.display = 'block';
-            playPauseButton.textContent = 'Play with Audio';
-        };
-
-        // Change the color of the dropdown text to green when selected
-        const changeSelectedDropdownColor = (selectElement) => {
-            if (selectElement.value !== "") {
-                selectElement.classList.add('selected');
-            }
+            playPauseButton.textContent = 'Play with Audio'; // Updated text
         };
 
         // Event listeners for each dropdown
         goldJewelrySelect.addEventListener('change', (event) => {
-            resetOtherDropdowns(goldJewelrySelect);
-            changeSelectedDropdownColor(goldJewelrySelect);
+            resetOtherDropdowns(goldJewelrySelect);  // Reset other dropdowns
 
             switch (event.target.value) {
                 case 'ring':
@@ -242,8 +240,7 @@
         });
 
         diamondJewelrySelect.addEventListener('change', (event) => {
-            resetOtherDropdowns(diamondJewelrySelect);
-            changeSelectedDropdownColor(diamondJewelrySelect);
+            resetOtherDropdowns(diamondJewelrySelect);  // Reset other dropdowns
 
             switch (event.target.value) {
                 case 'ring':
@@ -265,23 +262,14 @@
 
         // Play/Pause button functionality
         playPauseButton.addEventListener('click', () => {
-            if (currentVideo) {
-                if (isPlaying) {
-                    currentVideo.muted = true;
-                    currentVideo.pause();
-                    playPauseButton.textContent = 'Play with Audio';
-                } else {
-                    currentVideo.muted = false;
-                    currentVideo.play();
-                    playPauseButton.textContent = 'Pause';
-                }
-                isPlaying = !isPlaying;
+            if (isPlaying) {
+                currentVideo.pause();
+                playPauseButton.textContent = 'Play with Audio';
+            } else {
+                currentVideo.play();
+                playPauseButton.textContent = 'Pause';
             }
-        });
-
-        // Try Our Jewellery button functionality
-        tryJewelryButton.addEventListener('click', () => {
-            window.open('https://overlay-ai-tech.github.io/gold-chain-demo/', '_blank');
+            isPlaying = !isPlaying;
         });
     </script>
 </body>
