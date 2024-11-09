@@ -271,10 +271,10 @@
         // Function to open the demo link
         const openJewelryDemo = (link) => {
             loadingIndicator.style.display = 'block'; // Show loading indicator
-            window.open(link, '_blank');
             setTimeout(() => {
-                loadingIndicator.style.display = 'none'; // Hide loading indicator after timeout
-            }, 2000); // Adjust the timeout as necessary
+                window.open(link, '_blank'); // Open link in a new tab
+                loadingIndicator.style.display = 'none'; // Hide loading indicator after opening link
+            }, 2000); // Adjust timeout for better user experience
         };
     </script>
 </body>
