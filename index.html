@@ -8,11 +8,11 @@
         /* Container for dropdown menus */
         #catalogueContainer {
             position: absolute;
-            bottom: 130px; /* Position just above the other buttons */
-            left: 50%;
+            bottom: 80px; /* Position just above the play/pause button */
+            left: 50%; /* Center horizontally */
             transform: translateX(-50%);
             z-index: 999;
-            display: flex;
+            display: flex; /* Display the container */
             justify-content: space-between;
             align-items: center;
             gap: 20px;
@@ -30,11 +30,11 @@
             outline: none;
             background-color: #FFF;
             border: none;
-            color: black;
+            color: black; /* Default color */
         }
 
         #catalogueContainer select.selected {
-            color: green;
+            color: green; /* Change color when selected */
         }
 
         #catalogueContainer h3 {
@@ -44,7 +44,7 @@
             text-align: center;
         }
 
-        #buyNowContainer, #playPauseButtonContainer, #tryJewelryContainer {
+        #buyNowContainer, #playPauseButtonContainer {
             position: absolute;
             bottom: 20px;
             z-index: 999;
@@ -53,21 +53,15 @@
 
         #buyNowContainer {
             left: 20px;
-            display: none;
+            display: none; /* Hidden by default */
         }
 
         #playPauseButtonContainer {
             right: 20px;
-            display: none;
+            display: none; /* Hidden by default */
         }
 
-        #tryJewelryContainer {
-            bottom: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        #buyNowButton, #playPauseButton, #tryJewelryButton {
+        #buyNowButton, #playPauseButton {
             padding: 10px 20px;
             border-radius: 5px;
             background-color: #FFD700;
@@ -98,7 +92,7 @@
                 <option value="bracelet">Gold Bracelet</option>
             </select>
         </div>
-        
+       
         <!-- Diamond Jewelry -->
         <div>
             <h3>Diamond<br>Jewellery:</h3>
@@ -120,11 +114,6 @@
     <!-- Play/Pause Button (hidden initially) -->
     <div id="playPauseButtonContainer">
         <button id="playPauseButton">Play with Audio</button>
-    </div>
-
-    <!-- Try Our Jewellery Button -->
-    <div id="tryJewelryContainer">
-        <button id="tryJewelryButton">Try Our Jewellery</button>
     </div>
 
     <!-- AR Scene -->
@@ -170,7 +159,6 @@
         const buyNowButton = document.querySelector('#buyNowButton');
         const playPauseButton = document.querySelector('#playPauseButton');
         const playPauseButtonContainer = document.querySelector('#playPauseButtonContainer');
-        const tryJewelryButton = document.querySelector('#tryJewelryButton');
 
         // Jewelry videos
         let currentVideo = null;
@@ -187,7 +175,7 @@
             allSelects.forEach(select => {
                 if (select !== currentSelect) {
                     select.value = "";
-                    select.classList.remove('selected');
+                    select.classList.remove('selected'); // Reset class of unselected dropdowns
                 }
             });
         };
@@ -208,33 +196,33 @@
 
             // Show Play/Pause button
             playPauseButtonContainer.style.display = 'block';
-            playPauseButton.textContent = 'Play with Audio';
+            playPauseButton.textContent = 'Play with Audio'; // Updated text
         };
 
         // Change the color of the dropdown text to green when selected
         const changeSelectedDropdownColor = (selectElement) => {
             if (selectElement.value !== "") {
-                selectElement.classList.add('selected');
+                selectElement.classList.add('selected'); // Add class to change text color
             }
         };
 
         // Event listeners for each dropdown
         goldJewelrySelect.addEventListener('change', (event) => {
-            resetOtherDropdowns(goldJewelrySelect);
-            changeSelectedDropdownColor(goldJewelrySelect);
+            resetOtherDropdowns(goldJewelrySelect);  // Reset other dropdowns
+            changeSelectedDropdownColor(goldJewelrySelect); // Change text color
 
             switch (event.target.value) {
                 case 'ring':
-                    changeJewelryVideo(document.querySelector('#goldRingVideo'), 'https://overlay-website-demo.odoo.com');
+                    changeJewelryVideo(document.querySelector('#goldRingVideo'), 'https://overlay-website-demo.odoo.com/');
                     break;
                 case 'necklace':
-                    changeJewelryVideo(document.querySelector('#goldNecklaceVideo'), 'https://overlay-website-demo.odoo.com');
+                    changeJewelryVideo(document.querySelector('#goldNecklaceVideo'), 'https://overlay-website-demo.odoo.com/');
                     break;
                 case 'earrings':
-                    changeJewelryVideo(document.querySelector('#goldEarringsVideo'), 'https://overlay-website-demo.odoo.com');
+                    changeJewelryVideo(document.querySelector('#goldEarringsVideo'), 'https://overlay-website-demo.odoo.com/');
                     break;
                 case 'bracelet':
-                    changeJewelryVideo(document.querySelector('#goldBraceletVideo'), 'https://overlay-website-demo.odoo.com');
+                    changeJewelryVideo(document.querySelector('#goldBraceletVideo'), 'https://overlay-website-demo.odoo.com/');
                     break;
                 default:
                     break;
@@ -242,15 +230,15 @@
         });
 
         diamondJewelrySelect.addEventListener('change', (event) => {
-            resetOtherDropdowns(diamondJewelrySelect);
-            changeSelectedDropdownColor(diamondJewelrySelect);
+            resetOtherDropdowns(diamondJewelrySelect);  // Reset other dropdowns
+            changeSelectedDropdownColor(diamondJewelrySelect); // Change text color
 
             switch (event.target.value) {
                 case 'ring':
-                    changeJewelryVideo(document.querySelector('#diamondRingVideo'), 'https://overlay-website-demo.odoo.com');
+                    changeJewelryVideo(document.querySelector('#diamondRingVideo'), 'https://overlay-website-demo.odoo.com/');
                     break;
                 case 'necklace':
-                    changeJewelryVideo(document.querySelector('#diamondNecklaceVideo'), 'https://overlay-website-demo.odoo.com');
+                    changeJewelryVideo(document.querySelector('#diamondNecklaceVideo'), 'https://overlay-website-demo.odoo.com/');
                     break;
                 case 'earrings':
                     changeJewelryVideo(document.querySelector('#diamondEarringsVideo'), 'https://overlay-website-demo.odoo.com/');
@@ -263,25 +251,34 @@
             }
         });
 
-        // Play/Pause button functionality
+        // Event listener for the Play/Pause button
         playPauseButton.addEventListener('click', () => {
-            if (currentVideo) {
-                if (isPlaying) {
-                    currentVideo.muted = true;
-                    currentVideo.pause();
-                    playPauseButton.textContent = 'Play with Audio';
-                } else {
-                    currentVideo.muted = false;
-                    currentVideo.play();
-                    playPauseButton.textContent = 'Pause';
-                }
-                isPlaying = !isPlaying;
+            if (isPlaying) {
+                currentVideo.pause();
+                playPauseButton.textContent = 'Play with Audio';
+            } else {
+                currentVideo.play();
+                playPauseButton.textContent = 'Pause Audio';
+            }
+            isPlaying = !isPlaying;
+        });
+
+        // Visibility control for target appearance
+        const target = document.querySelector('#target1');
+        target.addEventListener('targetFound', () => {
+            targetVisible = true;
+            if (currentVideo && !isPlaying) {
+                currentVideo.play();
+                isPlaying = true;
             }
         });
 
-        // Try Our Jewellery button functionality
-        tryJewelryButton.addEventListener('click', () => {
-            window.open('https://overlay-ai-tech.github.io/gold-chain-demo/', '_blank');
+        target.addEventListener('targetLost', () => {
+            targetVisible = false;
+            if (currentVideo) {
+                currentVideo.pause();
+                isPlaying = false;
+            }
         });
     </script>
 </body>
